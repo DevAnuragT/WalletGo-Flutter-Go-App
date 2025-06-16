@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "786765336174",
+    "project_id": "wallet-go-4e13a",
+    "storage_bucket": "wallet-go-4e13a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:786765336174:android:dfc19324f0db6fff47607f",
+        "android_client_info": {
+          "package_name": "com.example.wallet_go"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA39GagcGIYFbN2TTOBa05ekC_xZ7SdCtI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
