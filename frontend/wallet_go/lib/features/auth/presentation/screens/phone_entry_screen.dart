@@ -11,7 +11,7 @@ class PhoneEntryScreen extends StatefulWidget {
 class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
   final _formKey = GlobalKey<FormState>();
   final _phoneController = TextEditingController();
-  bool _isLoading = false;
+  final bool _isLoading = false;
 
   void _onNext() {
     if (_formKey.currentState!.validate()) {
