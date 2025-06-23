@@ -24,7 +24,7 @@ func SendPoints(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 🔐 Verify PIN before proceeding
+	//Verify PIN before proceeding
 	ok, err := services.VerifyUserPIN(t.From, t.PIN)
 	if err != nil {
 		http.Error(w, "User not found", http.StatusNotFound)

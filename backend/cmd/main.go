@@ -15,6 +15,7 @@ func main() {
 	http.HandleFunc("/api/transfer", handlers.SendPoints)
 	http.HandleFunc("/api/set-pin", handlers.SetUserPINHandler)
 	http.HandleFunc("/api/verify-pin", handlers.VerifyUserPINHandler)
+	http.HandleFunc("/api/split-bill", handlers.SplitBillHandler)
 
 
 	log.Println("🚀 Server started at :8080")
