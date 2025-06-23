@@ -3,13 +3,15 @@ package main
 import (
 	"log"
 	"net/http"
-	"../internal/handlers"
+
+	"walletgo/internal/handlers"
+	"walletgo/pkg/db"
 )
 
 func main() {
-	http.HandleFunc("/send-otp", handlers.SendOTPHandler)
-	http.HandleFunc("/verify-otp", handlers.VerifyOTPHandler)
+	db.InitMongo()
 
-	log.Println("Server running at http://localhost:8080")
+	http.HandleFunc("/api/register", handlers.RegisterUser)
+	log.Println("🚀 Server started at :8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
