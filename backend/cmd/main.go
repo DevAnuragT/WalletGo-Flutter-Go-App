@@ -16,8 +16,8 @@ func main() {
 	http.HandleFunc("/api/set-pin", handlers.SetUserPINHandler)
 	http.HandleFunc("/api/verify-pin", handlers.VerifyUserPINHandler)
 	http.HandleFunc("/api/split-bill", handlers.SplitBillHandler)
+	http.HandleFunc("/api/respond-request", handlers.RespondToRequestHandler)
 
-
-	log.Println("🚀 Server started at :8080")
+	log.Println("Server started at :8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
