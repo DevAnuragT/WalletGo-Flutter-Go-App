@@ -74,7 +74,6 @@ func VerifyUserPINHandler(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-
 func RegisterUser(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
@@ -94,4 +93,28 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(map[string]string{"message": "User created"})
+}
+
+func UpdateGoalHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var body struct {
+		UID  string `json:"uid"`
+		Goal int    `json:"goal"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		http.Error(w, "Invalid body", http.StatusBadRequest)
+		return
+	}
+
+	err := services.UpdateSavingsGoal(body.UID, body.Goal)
+	if err != nil {
+		http.Error(w, "Could not update goal", http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(map[string]string{"message": "Goal updated"})
 }

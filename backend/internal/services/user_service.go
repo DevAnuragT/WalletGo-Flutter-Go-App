@@ -14,6 +14,7 @@ type User struct {
 	Phone    string `json:"phone"`
 	Balance  int    `json:"balance"`
 	PINHash  string `json:"-" bson:"pinHash,omitempty"` // bcrypt hash for PIN
+	SavingsGoal int    `json:"savingsGoal" bson:"savingsGoal"`
 }
 
 
@@ -50,7 +51,6 @@ func VerifyUserPIN(uid, inputPIN string) (bool, error) {
 	return true, nil
 }
 
-
 func CreateUser(u User) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -58,5 +58,15 @@ func CreateUser(u User) error {
 	u.Balance = 10000 // Default balance(since using points instead of money)
 
 	_, err := db.DB.Collection("users").InsertOne(ctx, u)
+	return err
+}
+
+func UpdateSavingsGoal(uid string, newGoal int) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	_, err := db.DB.Collection("users").UpdateByID(ctx, uid, map[string]interface{}{
+		"$set": map[string]int{"savingsGoal": newGoal},
+	})
 	return err
 }
