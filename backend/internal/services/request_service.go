@@ -7,18 +7,19 @@ import (
 
 	"walletgo/pkg/db"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type PointRequest struct {
 	ID        primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	From      string             `json:"from"`
-	To        string             `json:"to"`
-	Amount    int                `json:"amount"`
-	Note      string             `json:"note"`
-	Category  string             `json:"category"`
-	Status    string             `json:"status"` // pending, accepted, rejected
-	CreatedAt time.Time          `json:"created_at"`
+	From      string             `bson:"from" json:"from"`
+	To        string             `bson:"to" json:"to"`
+	Amount    int                `bson:"amount" json:"amount"`
+	Note      string             `bson:"note" json:"note"`
+	Category  string             `bson:"category" json:"category"`
+	Status    string             `bson:"status" json:"status"` // pending, accepted, rejected
+	CreatedAt time.Time          `bson:"created_at" json:"created_at"`
 }
 
 func CreateSplitRequests(from string, recipients []string, totalAmount int, note, category string) error {
@@ -61,7 +62,7 @@ func RespondToRequest(requestID string, action string) error {
 	}
 
 	var req PointRequest
-	if err := requests.FindOne(ctx, map[string]interface{}{"_id": objID}).Decode(&req); err != nil {
+	if err := requests.FindOne(ctx, bson.M{"_id": objID}).Decode(&req); err != nil {
 		return errors.New("request not found")
 	}
 
@@ -85,8 +86,8 @@ func RespondToRequest(requestID string, action string) error {
 	}
 
 	//Updating request status
-	_, err = requests.UpdateByID(ctx, objID, map[string]interface{}{
-		"$set": map[string]string{"status": action},
+	_, err = requests.UpdateByID(ctx, objID, bson.M{
+	"$set": bson.M{"status": action},
 	})
 	return err
 }
