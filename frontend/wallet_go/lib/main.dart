@@ -33,6 +33,7 @@ class WalletGoApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => RequestsProvider()),
         ChangeNotifierProvider(create: (_) => TransactionProvider()),
         ChangeNotifierProvider(create: (_) => SplitProvider()),
+        ChangeNotifierProvider(create: (_) => RequestsProvider()),
 
       ],
       child: Consumer<AuthProvider>(
