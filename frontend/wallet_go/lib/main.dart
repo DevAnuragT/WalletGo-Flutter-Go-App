@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:wallet_go/core/notifications/notification_service.dart';
 import 'package:wallet_go/features/auth/presentation/screens/register_or_login_screen.dart';
 import 'package:wallet_go/features/requests/presentation/providers/request_provider.dart';
+import 'package:wallet_go/features/wallet/presentation/providers/split_provider.dart';
 import 'package:wallet_go/features/wallet/presentation/providers/transaction_provider.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/domain/providers/auth_provider.dart';
@@ -31,6 +32,7 @@ class WalletGoApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => RequestsProvider()),
         ChangeNotifierProvider(create: (_) => TransactionProvider()),
+        ChangeNotifierProvider(create: (_) => SplitProvider()),
 
       ],
       child: Consumer<AuthProvider>(
