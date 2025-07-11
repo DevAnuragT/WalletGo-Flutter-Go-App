@@ -4,7 +4,8 @@ import 'dart:convert';
 
 class VerifyPinScreen extends StatefulWidget {
   final VoidCallback onVerified;
-  const VerifyPinScreen({super.key, required this.onVerified});
+  final String uid;
+  const VerifyPinScreen({super.key, required this.onVerified, required this.uid});
 
   @override
   State<VerifyPinScreen> createState() => _VerifyPinScreenState();
@@ -25,7 +26,7 @@ class _VerifyPinScreenState extends State<VerifyPinScreen> {
       Uri.parse('http://localhost:8080/api/verify-pin'),
       headers: {'Content-Type': 'application/json'},
       body: json.encode({
-        "uid": "$uid",
+        "uid": widget.uid,
         "pin": pin,
       }),
     );

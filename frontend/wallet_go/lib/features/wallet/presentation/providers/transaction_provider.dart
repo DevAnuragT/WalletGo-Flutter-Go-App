@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../../../../core/notifications/notification_service.dart';
 
 class Transaction {
   final String from;
@@ -51,5 +52,37 @@ class TransactionProvider with ChangeNotifier {
 
     _isLoading = false;
     notifyListeners();
+  }
+
+  Future<bool> sendPoints({
+    required String fromUid,
+    required String toUid,
+    required int amount,
+    required String note,
+    required String category,
+  }) async {
+    final res = await http.post(
+      Uri.parse('http://localhost:8080/api/transfer'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({
+        "from": fromUid,
+        "to": toUid,
+        "amount": amount,
+        "note": note,
+        "category": category,
+      }),
+    );
+
+    if (res.statusCode == 200) {
+      NotificationService.show(
+        id: DateTime.now().millisecondsSinceEpoch.remainder(100000),
+        title: 'Transfer Successful',
+        body: 'You sent ₹$amount to $toUid for $note',
+      );
+
+      return true;
+    } else {
+      return false;
+    }
   }
 }

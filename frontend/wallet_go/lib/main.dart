@@ -1,7 +1,10 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wallet_go/core/notifications/notification_service.dart';
 import 'package:wallet_go/features/auth/presentation/screens/register_or_login_screen.dart';
+import 'package:wallet_go/features/requests/presentation/providers/request_provider.dart';
+import 'package:wallet_go/features/wallet/presentation/providers/transaction_provider.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/domain/providers/auth_provider.dart';
 import 'features/wallet/presentation/providers/wallet_provider.dart';
@@ -13,6 +16,7 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await NotificationService.init();
   runApp(const WalletGoApp());
 }
 

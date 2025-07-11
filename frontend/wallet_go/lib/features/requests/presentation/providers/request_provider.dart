@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../../../../core/notifications/notification_service.dart';
 
 class Request {
   final String id;
@@ -10,7 +11,14 @@ class Request {
   final String category;
   final String status;
 
-  Request({required this.id, required this.from, required this.amount, required this.note, required this.category, required this.status});
+  Request({
+    required this.id,
+    required this.from,
+    required this.amount,
+    required this.note,
+    required this.category,
+    required this.status,
+  });
 
   factory Request.fromJson(Map<String, dynamic> json) {
     return Request(
@@ -36,9 +44,24 @@ class RequestsProvider with ChangeNotifier {
     notifyListeners();
 
     final res = await http.get(Uri.parse('http://localhost:8080/api/requests?uid=$uid'));
+
     if (res.statusCode == 200) {
       final List decoded = json.decode(res.body);
-      _requests = decoded.map((r) => Request.fromJson(r)).toList();
+      final List<Request> fetchedRequests =
+          decoded.map((r) => Request.fromJson(r)).toList();
+
+      for (final r in fetchedRequests) {
+        final alreadyExists = _requests.any((existing) => existing.id == r.id);
+        if (!alreadyExists && r.status == "pending") {
+          NotificationService.show(
+            id: DateTime.now().millisecondsSinceEpoch.remainder(100000),
+            title: "New Point Request",
+            body: "${r.from} requested ₹${r.amount} for ${r.note}",
+          );
+        }
+      }
+
+      _requests = fetchedRequests;
     }
 
     _isLoading = false;

@@ -36,7 +36,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                   title: Text(isIncoming ? "From: ${txn.from}" : "To: ${txn.to}"),
                   subtitle: Text("${txn.note} • ${txn.category}"),
                   trailing: Text(
-                    (isIncoming ? "+" : "-") + "₹${txn.amount}",
+                    "${isIncoming ? "+" : "-"}₹${txn.amount}",
                     style: TextStyle(
                       color: isIncoming ? Colors.green : Colors.red,
                       fontWeight: FontWeight.bold,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/requests_provider.dart';
+import 'package:wallet_go/features/requests/presentation/providers/request_provider.dart';
 
 class RequestsScreen extends StatefulWidget {
   final String uid;
