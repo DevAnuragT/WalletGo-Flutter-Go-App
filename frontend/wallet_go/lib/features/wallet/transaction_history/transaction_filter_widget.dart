@@ -44,20 +44,34 @@ class TransactionFilterWidget extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           // Date Range Picker
-          ElevatedButton(
-            onPressed: () async {
-              final picked = await showDateRangePicker(
-                context: context,
-                firstDate: DateTime(2020),
-                lastDate: DateTime.now(),
-                initialDateRange: selectedDateRange,
-              );
-              if (picked != null) {
-                onFilterChanged(selectedCategory, selectedType, picked);
-              }
-            },
-            child: Text(selectedDateRange == null ? 'Date' : '${selectedDateRange!.start.month}/${selectedDateRange!.start.day} - ${selectedDateRange!.end.month}/${selectedDateRange!.end.day}'),
+          Builder(
+            builder: (context) => ElevatedButton(
+              onPressed: () async {
+                final picked = await showDateRangePicker(
+                  context: context,
+                  firstDate: DateTime(2020),
+                  lastDate: DateTime.now().add(const Duration(days: 365)),
+                  initialDateRange: selectedDateRange,
+                );
+                if (picked != null) {
+                  onFilterChanged(selectedCategory, selectedType, picked);
+                }
+              },
+              child: Text(
+                selectedDateRange == null
+                    ? 'Date'
+                    : '${selectedDateRange!.start.month}/${selectedDateRange!.start.day} - ${selectedDateRange!.end.month}/${selectedDateRange!.end.day}',
+              ),
+            ),
           ),
+          const SizedBox(width: 8),
+          // Clear Filters Button
+          if (selectedCategory != null || selectedType != null || selectedDateRange != null)
+            IconButton(
+              icon: const Icon(Icons.clear),
+              tooltip: 'Clear Filters',
+              onPressed: () => onFilterChanged(null, null, null),
+            ),
         ],
       ),
     );

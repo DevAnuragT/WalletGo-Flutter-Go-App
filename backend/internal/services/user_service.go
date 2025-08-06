@@ -4,19 +4,19 @@ import (
 	"context"
 	"time"
 	"walletgo/pkg/db"
+
 	"golang.org/x/crypto/bcrypt"
 )
 
 type User struct {
-	UID      string `json:"uid" bson:"_id"`
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Phone    string `json:"phone"`
-	Balance  int    `json:"balance"`
-	PINHash  string `json:"-" bson:"pinHash,omitempty"` // bcrypt hash for PIN
+	UID         string `json:"uid" bson:"_id"`
+	Name        string `json:"name"`
+	Email       string `json:"email"`
+	Phone       string `json:"phone"`
+	Balance     int    `json:"balance"`
+	PINHash     string `json:"-" bson:"pinHash,omitempty"` // bcrypt hash for PIN
 	SavingsGoal int    `json:"savingsGoal" bson:"savingsGoal"`
 }
-
 
 func SetUserPIN(uid, pin string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -69,4 +69,24 @@ func UpdateSavingsGoal(uid string, newGoal int) error {
 		"$set": map[string]int{"savingsGoal": newGoal},
 	})
 	return err
+}
+
+func ListUsers() ([]User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	cursor, err := db.DB.Collection("users").Find(ctx, map[string]interface{}{})
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var users []User
+	for cursor.Next(ctx) {
+		var u User
+		if err := cursor.Decode(&u); err == nil {
+			users = append(users, u)
+		}
+	}
+	return users, cursor.Err()
 }

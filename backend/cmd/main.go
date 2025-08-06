@@ -18,6 +18,7 @@ func main() {
 	http.HandleFunc("/api/split-bill", handlers.SplitBillHandler)
 	http.HandleFunc("/api/respond-request", handlers.RespondToRequestHandler)
 	http.HandleFunc("/api/update-goal", handlers.UpdateGoalHandler)
+	http.HandleFunc("/api/users", handlers.ListUsersHandler)
 
 	log.Println("Server started at :8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))

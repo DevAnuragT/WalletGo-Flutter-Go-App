@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'transaction_filter_widget.dart';
-import 'transaction_list_item.dart';
+import 'transaction_service.dart';
 
 class TransactionHistoryScreen extends StatefulWidget {
   const TransactionHistoryScreen({super.key});
@@ -10,86 +11,112 @@ class TransactionHistoryScreen extends StatefulWidget {
 }
 
 class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
-  // Mock data for now
-  List<Map<String, dynamic>> transactions = [
-    {
-      'id': '1',
-      'amount': 120.0,
-      'category': 'Food',
-      'date': DateTime.now().subtract(const Duration(days: 1)),
-      'type': 'Debit',
-      'description': 'Lunch at Cafe',
-    },
-    {
-      'id': '2',
-      'amount': 200.0,
-      'category': 'Shopping',
-      'date': DateTime.now().subtract(const Duration(days: 2)),
-      'type': 'Debit',
-      'description': 'Clothes',
-    },
-    {
-      'id': '3',
-      'amount': 500.0,
-      'category': 'Salary',
-      'date': DateTime.now().subtract(const Duration(days: 3)),
-      'type': 'Credit',
-      'description': 'Monthly Salary',
-    },
-  ];
-
-  // Filter state
   String? selectedCategory;
   String? selectedType;
   DateTimeRange? selectedDateRange;
 
+  late Future<List<Map<String, dynamic>>> _transactionsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchTransactions();
+  }
+
+  void _fetchTransactions() {
+    setState(() {
+      _transactionsFuture = TransactionService.fetchTransactions(
+        category: selectedCategory,
+        type: selectedType,
+        dateRange: selectedDateRange,
+      );
+    });
+  }
+
+  void _onFilterChanged(String? category, String? type, DateTimeRange? dateRange) {
+    selectedCategory = category;
+    selectedType = type;
+    selectedDateRange = dateRange;
+    _fetchTransactions();
+  }
+
+  String _formatDate(String? isoDate) {
+    if (isoDate == null) return '';
+    final date = DateTime.tryParse(isoDate);
+    if (date == null) return '';
+    return DateFormat('MMM d, yyyy').format(date);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Transaction History'),
-      ),
+      appBar: AppBar(title: const Text('Transaction History')),
       body: Column(
         children: [
           TransactionFilterWidget(
             selectedCategory: selectedCategory,
             selectedType: selectedType,
             selectedDateRange: selectedDateRange,
-            onFilterChanged: (category, type, dateRange) {
-              setState(() {
-                selectedCategory = category;
-                selectedType = type;
-                selectedDateRange = dateRange;
-              });
-            },
+            onFilterChanged: _onFilterChanged,
           ),
           Expanded(
-            child: _buildTransactionList(),
+            child: FutureBuilder<List<Map<String, dynamic>>>(
+              future: _transactionsFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const Center(child: Text('No transactions found.'));
+                }
+                final transactions = snapshot.data!;
+                return ListView.separated(
+                  padding: const EdgeInsets.all(12),
+                  itemCount: transactions.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 10),
+                  itemBuilder: (context, index) {
+                    final tx = transactions[index];
+                    return Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        title: Text(
+                          tx['title'] ?? '',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Text(
+                          '${tx['category'] ?? ''} • ${tx['type'] ?? ''}\n${_formatDate(tx['date']?.toString())}',
+                          style: const TextStyle(fontSize: 13),
+                        ),
+                        isThreeLine: true,
+                        trailing: Text(
+                          '\$${(tx['amount'] ?? 0).toStringAsFixed(2)}',
+                          style: TextStyle(
+                            color: tx['type'] == 'Credit' ? Colors.green : Colors.red,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        leading: CircleAvatar(
+                          backgroundColor: tx['type'] == 'Credit'
+                              ? Colors.green.withOpacity(0.15)
+                              : Colors.red.withOpacity(0.15),
+                          child: Icon(
+                            tx['type'] == 'Credit' ? Icons.arrow_downward : Icons.arrow_upward,
+                            color: tx['type'] == 'Credit' ? Colors.green : Colors.red,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildTransactionList() {
-    // Apply filters to mock data
-    List<Map<String, dynamic>> filtered = transactions.where((tx) {
-      bool matchesCategory = selectedCategory == null || tx['category'] == selectedCategory;
-      bool matchesType = selectedType == null || tx['type'] == selectedType;
-      bool matchesDate = selectedDateRange == null ||
-          (tx['date'].isAfter(selectedDateRange!.start.subtract(const Duration(days: 1))) &&
-              tx['date'].isBefore(selectedDateRange!.end.add(const Duration(days: 1))));
-      return matchesCategory && matchesType && matchesDate;
-    }).toList();
-
-    if (filtered.isEmpty) {
-      return const Center(child: Text('No transactions found.'));
-    }
-    return ListView.builder(
-      itemCount: filtered.length,
-      itemBuilder: (context, index) {
-        return TransactionListItem(transaction: filtered[index]);
-      },
     );
   }
 }
